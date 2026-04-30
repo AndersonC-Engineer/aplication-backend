@@ -4,6 +4,15 @@ const { validationResult } = require('express-validator');
 const UsersModel = require('../models/users');
 const authService = require('../services/authService');
 
+const sanitizeUserResponse = (user) => {
+  if (!user) return null;
+  const safeUser = { ...user };
+  delete safeUser.password_hash;
+  return safeUser;
+};
+
+const isBcryptHash = (value) => typeof value === 'string' && /^\$2[aby]\$/.test(value);
+
 const register = async (req, res, next) => {
   try {
     const errors = validationResult(req);
@@ -34,7 +43,7 @@ const register = async (req, res, next) => {
     });
 
     const token = authService.generateToken(newUser);
-    res.status(201).json({ user: newUser, token });
+    res.status(201).json({ user: sanitizeUserResponse(newUser), token });
   } catch (err) {
     next(err);
   }
@@ -54,13 +63,22 @@ const login = async (req, res, next) => {
       return res.status(401).json({ message: 'Credenciales inválidas' });
     }
 
-    const isMatch = await authService.comparePassword(password, user.password_hash);
+    let isMatch = false;
+    if (isBcryptHash(user.password_hash)) {
+      isMatch = await authService.comparePassword(password, user.password_hash);
+    } else if (user.password_hash === password) {
+      isMatch = true;
+      const password_hash = await authService.hashPassword(password);
+      await UsersModel.update(user.id, { password_hash });
+      user.password_hash = password_hash;
+    }
+
     if (!isMatch) {
       return res.status(401).json({ message: 'Credenciales inválidas' });
     }
 
     const token = authService.generateToken(user);
-    res.json({ user, token });
+    res.json({ user: sanitizeUserResponse(user), token });
   } catch (err) {
     next(err);
   }

@@ -72,7 +72,7 @@ npm start
 
 ## Subida a GitHub
 
-1. Inicializa el repositorio local:
+1. Inicializa el repositorio local (ya realizado en este proyecto):
 
 ```bash
 git init
@@ -85,18 +85,17 @@ git add .
 git commit -m "Init backend gestor de canchas"
 ```
 
-3. Crea el repositorio en GitHub y agrega el remote:
+3. Agrega el remote de GitHub y sube la rama principal:
 
 ```bash
-git remote add origin https://github.com/tu-usuario/tu-repo.git
-```
-
-4. Sube al repositorio:
-
-```bash
+git remote add origin https://github.com/AndersonC-Engineer/aplication-backend.git
 git branch -M main
 git push -u origin main
 ```
+
+## Integración continua
+
+Se incluye un workflow de GitHub Actions para validar el proyecto en cada push y pull request.
 
 ## Nota
 

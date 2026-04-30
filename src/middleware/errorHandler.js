@@ -1,10 +1,10 @@
 // src/middleware/errorHandler.js
 // Manejador centralizado de errores para capturar errores de Express y devolver respuestas JSON.
-const notFound = (req, res, next) => {
+const notFound = (req, res, _next) => {
   res.status(404).json({ message: 'Recurso no encontrado' });
 };
 
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, _next) => {
   console.error(err);
   const status = err.status || 500;
   res.status(status).json({
