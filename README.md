@@ -93,10 +93,3 @@ git branch -M main
 git push -u origin main
 ```
 
-## Integración continua
-
-Se incluye un workflow de GitHub Actions para validar el proyecto en cada push y pull request.
-
-## Nota
-
-No se debe subir el archivo `.env` al repositorio.
