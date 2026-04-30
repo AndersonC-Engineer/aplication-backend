@@ -7,6 +7,7 @@ const { validateRequest } = require('../utils/handleValidation');
 const {
   getCustomers,
   getCustomer,
+  getCustomerBookings,
   createCustomer,
   updateCustomer,
   deleteCustomer,
@@ -16,6 +17,7 @@ const router = express.Router();
 router.use(authenticateToken);
 
 router.get('/', getCustomers);
+router.get('/:id/bookings', [param('id').isInt()], validateRequest, getCustomerBookings);
 router.get('/:id', [param('id').isInt()], validateRequest, getCustomer);
 router.post(
   '/',

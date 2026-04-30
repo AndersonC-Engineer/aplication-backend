@@ -2,6 +2,7 @@
 // Controlador CRUD para clientes.
 const { validationResult } = require('express-validator');
 const CustomersModel = require('../models/customers');
+const customerService = require('../services/customerService');
 
 const getCustomers = async (req, res, next) => {
   try {
@@ -17,6 +18,15 @@ const getCustomer = async (req, res, next) => {
     const customer = await CustomersModel.findById(req.params.id);
     if (!customer) return res.status(404).json({ message: 'Cliente no encontrado' });
     res.json(customer);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getCustomerBookings = async (req, res, next) => {
+  try {
+    const bookings = await customerService.getCustomerBookings(req.params.id);
+    res.json(bookings);
   } catch (err) {
     next(err);
   }
@@ -61,6 +71,7 @@ const deleteCustomer = async (req, res, next) => {
 module.exports = {
   getCustomers,
   getCustomer,
+  getCustomerBookings,
   createCustomer,
   updateCustomer,
   deleteCustomer,

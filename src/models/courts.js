@@ -13,6 +13,32 @@ const CourtsModel = {
     return rows[0];
   },
 
+  findAvailable: async ({ booking_date, start_time, end_time }) => {
+    if (!booking_date) {
+      const { rows } = await pool.query("SELECT * FROM courts WHERE status = 'Available' ORDER BY id");
+      return rows;
+    }
+
+    const params = [booking_date];
+    let query = `SELECT * FROM courts c
+      WHERE c.status = 'Available'
+        AND NOT EXISTS (
+          SELECT 1 FROM bookings b
+          WHERE b.court_id = c.id
+            AND b.booking_date = $1`;
+
+    if (start_time && end_time) {
+      query += ' AND NOT ($2 >= b.end_time OR $3 <= b.start_time)';
+      query += ') ORDER BY c.id';
+      params.push(start_time, end_time);
+    } else {
+      query += ') ORDER BY c.id';
+    }
+
+    const { rows } = await pool.query(query, params);
+    return rows;
+  },
+
   create: async ({ court_name, sport_type, hourly_rate, status }) => {
     const { rows } = await pool.query(
       'INSERT INTO courts (court_name, sport_type, hourly_rate, status) VALUES ($1, $2, $3, $4) RETURNING *',
@@ -26,7 +52,7 @@ const CourtsModel = {
     if (!keys.length) return null;
     const values = Object.values(fields);
     const assignments = keys.map((key, index) => `${key} = $${index + 1}`).join(', ');
-    const query = `UPDATE courts SET ${assignments}, update_at = now() WHERE id = $${keys.length + 1} RETURNING *`;
+    const query = `UPDATE courts SET ${assignments}, updated_at = now() WHERE id = $${keys.length + 1} RETURNING *`;
     const { rows } = await pool.query(query, [...values, id]);
     return rows[0];
   },

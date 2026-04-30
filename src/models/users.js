@@ -19,12 +19,18 @@ const UsersModel = {
   },
 
   findByUsername: async (username) => {
-    const { rows } = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+    const { rows } = await pool.query(
+      'SELECT u.*, r.role_name FROM users u LEFT JOIN roles r ON u.role_id = r.id WHERE u.username = $1',
+      [username]
+    );
     return rows[0];
   },
 
   findByEmail: async (email) => {
-    const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const { rows } = await pool.query(
+      'SELECT u.*, r.role_name FROM users u LEFT JOIN roles r ON u.role_id = r.id WHERE u.email = $1',
+      [email]
+    );
     return rows[0];
   },
 

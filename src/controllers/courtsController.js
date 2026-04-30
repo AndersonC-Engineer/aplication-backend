@@ -2,6 +2,7 @@
 // Controlador CRUD para canchas y administración de estado.
 const { validationResult } = require('express-validator');
 const CourtsModel = require('../models/courts');
+const courtService = require('../services/courtService');
 
 const getCourts = async (req, res, next) => {
   try {
@@ -17,6 +18,24 @@ const getCourt = async (req, res, next) => {
     const court = await CourtsModel.findById(req.params.id);
     if (!court) return res.status(404).json({ message: 'Cancha no encontrada' });
     res.json(court);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getAvailableCourts = async (req, res, next) => {
+  try {
+    const courts = await courtService.getAvailableCourts(req.query);
+    res.json(courts);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getCourtAvailability = async (req, res, next) => {
+  try {
+    const availability = await courtService.getCourtAvailability(req.params.id, req.query);
+    res.json(availability);
   } catch (err) {
     next(err);
   }
@@ -61,6 +80,8 @@ const deleteCourt = async (req, res, next) => {
 module.exports = {
   getCourts,
   getCourt,
+  getAvailableCourts,
+  getCourtAvailability,
   createCourt,
   updateCourt,
   deleteCourt,

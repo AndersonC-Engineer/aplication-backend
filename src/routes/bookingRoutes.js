@@ -7,6 +7,7 @@ const { validateRequest } = require('../utils/handleValidation');
 const {
   getBookings,
   getBooking,
+  getBookingsByDate,
   createBooking,
   updateBooking,
   deleteBooking,
@@ -16,6 +17,7 @@ const router = express.Router();
 router.use(authenticateToken);
 
 router.get('/', getBookings);
+router.get('/by-date/:date', [param('date').isISO8601()], validateRequest, getBookingsByDate);
 router.get('/:id', [param('id').isInt()], validateRequest, getBooking);
 router.post(
   '/',

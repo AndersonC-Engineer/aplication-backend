@@ -28,6 +28,33 @@ const BookingsModel = {
     return rows[0];
   },
 
+  findByDate: async (booking_date) => {
+    const { rows } = await pool.query(
+      `SELECT b.*, c.court_name, cu.full_name AS customer_name, u.full_name AS user_name
+       FROM bookings b
+       LEFT JOIN courts c ON b.court_id = c.id
+       LEFT JOIN customers cu ON b.customer_id = cu.id
+       LEFT JOIN users u ON b.user_id = u.id
+       WHERE b.booking_date = $1
+       ORDER BY b.start_time`,
+      [booking_date]
+    );
+    return rows;
+  },
+
+  findByCustomerId: async (customer_id) => {
+    const { rows } = await pool.query(
+      `SELECT b.*, c.court_name, u.full_name AS user_name
+       FROM bookings b
+       LEFT JOIN courts c ON b.court_id = c.id
+       LEFT JOIN users u ON b.user_id = u.id
+       WHERE b.customer_id = $1
+       ORDER BY b.booking_date, b.start_time`,
+      [customer_id]
+    );
+    return rows;
+  },
+
   findOverlappingBookings: async (court_id, booking_date, start_time, end_time) => {
     const { rows } = await pool.query(
       `SELECT * FROM bookings
@@ -36,6 +63,19 @@ const BookingsModel = {
          AND NOT ($3 >= end_time OR $4 <= start_time)`,
       [court_id, booking_date, start_time, end_time]
     );
+    return rows;
+  },
+
+  findBookingsByCourtAndDate: async (court_id, booking_date, start_time, end_time) => {
+    let query = 'SELECT * FROM bookings WHERE court_id = $1 AND booking_date = $2';
+    const params = [court_id, booking_date];
+
+    if (start_time && end_time) {
+      query += ' AND NOT ($3 >= start_time OR $4 <= end_time)';
+      params.push(start_time, end_time);
+    }
+
+    const { rows } = await pool.query(query, params);
     return rows;
   },
 

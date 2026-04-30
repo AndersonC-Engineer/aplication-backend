@@ -13,6 +13,15 @@ const getBookings = async (req, res, next) => {
   }
 };
 
+const getBookingsByDate = async (req, res, next) => {
+  try {
+    const bookings = await bookingService.getBookingsByDate(req.params.date);
+    res.json(bookings);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getBooking = async (req, res, next) => {
   try {
     const booking = await BookingsModel.findById(req.params.id);
@@ -61,6 +70,7 @@ const deleteBooking = async (req, res, next) => {
 
 module.exports = {
   getBookings,
+  getBookingsByDate,
   getBooking,
   createBooking,
   updateBooking,
