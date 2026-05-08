@@ -109,8 +109,19 @@ const forgotPassword = async (req, res, next) => {
   }
 };
 
+const getProfile = async (req, res, next) => {
+  try {
+    const user = await UsersModel.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+    res.json(sanitizeUserResponse(user));
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   register,
   login,
   forgotPassword,
+  getProfile,
 };
