@@ -1,9 +1,11 @@
 // src/routes/courtRoutes.js
 // Rutas protegidas para administrar canchas.
 const express = require('express');
-const { body, param, query } = require('express-validator');
+const { param, query } = require('express-validator');
 const { authenticateToken } = require('../middleware/auth');
 const { validateRequest } = require('../utils/handleValidation');
+const validateWithZod = require('../middleware/zodValidation');
+const { createCourtSchema, updateCourtSchema } = require('../utils/validationSchemas');
 const {
   getCourts,
   getCourt,
@@ -30,18 +32,8 @@ router.get('/:id/availability', [
   query('end_time').optional().matches(/^\d{2}:\d{2}:\d{2}$/),
 ], validateRequest, getCourtAvailability);
 router.get('/:id', [param('id').isInt()], validateRequest, getCourt);
-router.post(
-  '/',
-  [
-    body('court_name').isString().notEmpty(),
-    body('sport_type').isString().notEmpty(),
-    body('hourly_rate').isFloat({ gt: 0 }),
-    body('status').isString().notEmpty(),
-  ],
-  validateRequest,
-  createCourt
-);
-router.put('/:id', [param('id').isInt()], validateRequest, updateCourt);
+router.post('/', validateWithZod(createCourtSchema), createCourt);
+router.put('/:id', [param('id').isInt()], validateRequest, validateWithZod(updateCourtSchema), updateCourt);
 router.delete('/:id', [param('id').isInt()], validateRequest, deleteCourt);
 
 module.exports = router;
