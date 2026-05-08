@@ -87,6 +87,11 @@ const updateCustomerSchema = z.object({
   outstanding_balance: z.number().min(0).optional(),
 });
 
+// Esquema para recuperar contraseña
+const forgotPasswordSchema = z.object({
+  email: z.string().email('El email debe ser válido'),
+});
+
 module.exports = {
   loginSchema,
   registerSchema,
@@ -97,4 +102,5 @@ module.exports = {
   updateBookingSchema,
   createCustomerSchema,
   updateCustomerSchema,
+  forgotPasswordSchema,
 };

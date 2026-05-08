@@ -84,7 +84,33 @@ const login = async (req, res, next) => {
   }
 };
 
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await UsersModel.findByEmail(email);
+
+    if (!user) {
+      // Por seguridad, no revelar si el email existe o no
+      return res.json({ message: 'Si el email está registrado, recibirás instrucciones para restablecer tu contraseña' });
+    }
+
+    // Aquí simularíamos el envío de email con token de reset
+    // Por ahora, solo retornamos un mensaje de éxito
+    // En producción, generar token, guardar en DB, enviar email
+
+    res.json({
+      message: 'Si el email está registrado, recibirás instrucciones para restablecer tu contraseña',
+      // Para testing: incluir token simulado
+      resetToken: `reset_${user.id}_${Date.now()}`, // Token temporal para pruebas
+      note: 'Este es un token de prueba. En producción, se enviaría por email.'
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   register,
   login,
+  forgotPassword,
 };
