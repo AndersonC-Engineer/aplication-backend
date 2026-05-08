@@ -1,8 +1,8 @@
-{
+﻿{
   "info": {
     "name": "Gestor Canchas API Tests",
     "_postman_id": "9d90f375-d8f5-4a3c-bd6c-9e06fbc4f8a7",
-    "description": "Colección de pruebas para el backend de gestión de canchas deportivas.",
+    "description": "Colección de pruebas con datos reales de la base de datos.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -10,52 +10,52 @@
       "name": "Autenticación",
       "item": [
         {
-          "name": "Login",
+          "name": "Login - tc_user",
           "request": {
             "method": "POST",
             "header": [
               { "key": "Content-Type", "value": "application/json" }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"tc_user\",\n  \"password\": \"password123\"\n}"
+            },
             "url": {
               "raw": "{{baseURL}}/auth/login",
               "host": ["{{baseURL}}"],
               "path": ["auth", "login"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"12345\"\n}"
             }
           },
           "event": [
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
                   "pm.test('Login status code is 200', function () { pm.response.to.have.status(200); });",
-                  "var data = pm.response.json();",
+                  "const data = pm.response.json();",
                   "pm.environment.set('token', data.token);",
                   "pm.test('Token is returned', function () { pm.expect(data.token).to.be.a('string'); });"
-                ],
-                "type": "text/javascript"
+                ]
               }
             }
           ]
         },
         {
-          "name": "Register User",
+          "name": "Forgot Password - anderson_admin",
           "request": {
             "method": "POST",
             "header": [
               { "key": "Content-Type", "value": "application/json" }
             ],
-            "url": {
-              "raw": "{{baseURL}}/auth/register",
-              "host": ["{{baseURL}}"],
-              "path": ["auth", "register"]
-            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"tc_user\",\n  \"password\": \"password123\",\n  \"full_name\": \"Test Client\",\n  \"email\": \"test.client@example.com\",\n  \"role_id\": 2,\n  \"status\": \"Activated\"\n}"
+              "raw": "{\n  \"email\": \"andersoncontreras@gmail.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/auth/forgot-password",
+              "host": ["{{baseURL}}"],
+              "path": ["auth", "forgot-password"]
             }
           }
         }
@@ -79,153 +79,16 @@
           }
         },
         {
-          "name": "Get User by ID",
+          "name": "Get User by ID - 7",
           "request": {
             "method": "GET",
             "header": [
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseURL}}/users/1",
+              "raw": "{{baseURL}}/users/7",
               "host": ["{{baseURL}}"],
-              "path": ["users", "1"]
-            }
-          }
-        },
-        {
-          "name": "Create User",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/users",
-              "host": ["{{baseURL}}"],
-              "path": ["users"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"new_user\",\n  \"password\": \"password123\",\n  \"full_name\": \"New User\",\n  \"email\": \"new.user@example.com\",\n  \"role_id\": 2,\n  \"status\": \"Activated\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Update User",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/users/1",
-              "host": ["{{baseURL}}"],
-              "path": ["users", "1"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"updated.user@example.com\",\n  \"password\": \"newpassword123\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Delete User",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/users/1",
-              "host": ["{{baseURL}}"],
-              "path": ["users", "1"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Clientes",
-      "item": [
-        {
-          "name": "Get All Customers",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/customers",
-              "host": ["{{baseURL}}"],
-              "path": ["customers"]
-            }
-          }
-        },
-        {
-          "name": "Get Customer by ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/customers/1",
-              "host": ["{{baseURL}}"],
-              "path": ["customers", "1"]
-            }
-          }
-        },
-        {
-          "name": "Create Customer",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/customers",
-              "host": ["{{baseURL}}"],
-              "path": ["customers"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"tax_id\": \"12345678\",\n  \"full_name\": \"Cliente Prueba\",\n  \"phone_number\": \"+541112345678\",\n  \"member_since\": \"2024-01-01\",\n  \"credit_limit\": 1000.0,\n  \"outstanding_balance\": 0.0\n}"
-            }
-          }
-        },
-        {
-          "name": "Update Customer",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/customers/1",
-              "host": ["{{baseURL}}"],
-              "path": ["customers", "1"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"phone_number\": \"+541198765432\",\n  \"credit_limit\": 1500.0\n}"
-            }
-          }
-        },
-        {
-          "name": "Delete Customer",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/customers/1",
-              "host": ["{{baseURL}}"],
-              "path": ["customers", "1"]
+              "path": ["users", "7"]
             }
           }
         }
@@ -249,68 +112,40 @@
           }
         },
         {
-          "name": "Get Court by ID",
+          "name": "Get Available Courts - 2026-04-16",
           "request": {
             "method": "GET",
             "header": [
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseURL}}/courts/1",
+              "raw": "{{baseURL}}/courts/available?booking_date=2026-04-16&start_time=10:00:00&end_time=12:00:00",
               "host": ["{{baseURL}}"],
-              "path": ["courts", "1"]
+              "path": ["courts", "available"],
+              "query": [
+                { "key": "booking_date", "value": "2026-04-16" },
+                { "key": "start_time", "value": "10:00:00" },
+                { "key": "end_time", "value": "12:00:00" }
+              ]
             }
           }
         },
         {
-          "name": "Create Court",
+          "name": "Get Court Availability - Court 2",
           "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/courts",
-              "host": ["{{baseURL}}"],
-              "path": ["courts"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"court_name\": \"Cancha Central\",\n  \"sport_type\": \"Futbol\",\n  \"hourly_rate\": 1200.0,\n  \"status\": \"Available\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Update Court",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/courts/1",
-              "host": ["{{baseURL}}"],
-              "path": ["courts", "1"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"Maintenance\",\n  \"hourly_rate\": 1300.0\n}"
-            }
-          }
-        },
-        {
-          "name": "Delete Court",
-          "request": {
-            "method": "DELETE",
+            "method": "GET",
             "header": [
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseURL}}/courts/1",
+              "raw": "{{baseURL}}/courts/2/availability?booking_date=2026-04-16&start_time=10:00:00&end_time=12:00:00",
               "host": ["{{baseURL}}"],
-              "path": ["courts", "1"]
+              "path": ["courts", "2", "availability"],
+              "query": [
+                { "key": "booking_date", "value": "2026-04-16" },
+                { "key": "start_time", "value": "10:00:00" },
+                { "key": "end_time", "value": "12:00:00" }
+              ]
             }
           }
         }
@@ -334,224 +169,68 @@
           }
         },
         {
-          "name": "Get Booking by ID",
+          "name": "Get Bookings by Date - 2026-04-16",
           "request": {
             "method": "GET",
             "header": [
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseURL}}/bookings/1",
+              "raw": "{{baseURL}}/bookings/by-date/2026-04-16",
               "host": ["{{baseURL}}"],
-              "path": ["bookings", "1"]
+              "path": ["bookings", "by-date", "2026-04-16"]
             }
           }
         },
         {
-          "name": "Create Booking",
+          "name": "Create Booking - customer 1, court 1",
           "request": {
             "method": "POST",
             "header": [
               { "key": "Content-Type", "value": "application/json" },
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": 1,\n  \"court_id\": 1,\n  \"user_id\": 7,\n  \"booking_date\": \"2026-05-10\",\n  \"start_time\": \"14:00:00\",\n  \"end_time\": \"16:00:00\",\n  \"total_amount\": 50.0,\n  \"payment_status\": \"Pending\"\n}"
+            },
             "url": {
               "raw": "{{baseURL}}/bookings",
               "host": ["{{baseURL}}"],
               "path": ["bookings"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"customer_id\": 1,\n  \"court_id\": 1,\n  \"user_id\": 1,\n  \"booking_date\": \"2025-01-15\",\n  \"start_time\": \"10:00:00\",\n  \"end_time\": \"11:00:00\",\n  \"total_amount\": 1200.0,\n  \"payment_status\": \"Pending\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Update Booking",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/bookings/1",
-              "host": ["{{baseURL}}"],
-              "path": ["bookings", "1"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"payment_status\": \"Paid\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Delete Booking",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/bookings/1",
-              "host": ["{{baseURL}}"],
-              "path": ["bookings", "1"]
             }
           }
         }
       ]
     },
     {
-      "name": "Facturación",
+      "name": "Clientes",
       "item": [
         {
-          "name": "Get All Billings",
+          "name": "Get All Customers",
           "request": {
             "method": "GET",
             "header": [
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseURL}}/billings",
+              "raw": "{{baseURL}}/customers",
               "host": ["{{baseURL}}"],
-              "path": ["billings"]
+              "path": ["customers"]
             }
           }
         },
         {
-          "name": "Get Billing by ID",
+          "name": "Get Customer Bookings - customer 1",
           "request": {
             "method": "GET",
             "header": [
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseURL}}/billings/1",
+              "raw": "{{baseURL}}/customers/1/bookings",
               "host": ["{{baseURL}}"],
-              "path": ["billings", "1"]
-            }
-          }
-        },
-        {
-          "name": "Create Billing",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/billings",
-              "host": ["{{baseURL}}"],
-              "path": ["billings"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"customer_id\": 1,\n  \"user_id\": 1,\n  \"booking_id\": 1,\n  \"payment_method_id\": 1,\n  \"total_paid\": 1200.0,\n  \"payment_status\": \"Paid\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Update Billing",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/billings/1",
-              "host": ["{{baseURL}}"],
-              "path": ["billings", "1"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"payment_status\": \"Pending\"\n}"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Productos",
-      "item": [
-        {
-          "name": "Get All Products",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/products",
-              "host": ["{{baseURL}}"],
-              "path": ["products"]
-            }
-          }
-        },
-        {
-          "name": "Get Product by ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/products/1",
-              "host": ["{{baseURL}}"],
-              "path": ["products", "1"]
-            }
-          }
-        },
-        {
-          "name": "Create Product",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/products",
-              "host": ["{{baseURL}}"],
-              "path": ["products"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"product_name\": \"Pelota Oficial\",\n  \"current_stock\": 10,\n  \"sale_price\": 2500.0,\n  \"purcharse_price\": 1800.0\n}"
-            }
-          }
-        },
-        {
-          "name": "Update Product",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/products/1",
-              "host": ["{{baseURL}}"],
-              "path": ["products", "1"]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"current_stock\": 15,\n  \"sale_price\": 2600.0\n}"
-            }
-          }
-        },
-        {
-          "name": "Delete Product",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" }
-            ],
-            "url": {
-              "raw": "{{baseURL}}/products/1",
-              "host": ["{{baseURL}}"],
-              "path": ["products", "1"]
+              "path": ["customers", "1", "bookings"]
             }
           }
         }
