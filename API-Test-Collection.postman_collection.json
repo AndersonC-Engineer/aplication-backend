@@ -85,11 +85,59 @@
               { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "url": {
-              "raw": "{{baseURL}}/auth/profile",
+              "raw": "{{baseURL}}/profile",
               "host": ["{{baseURL}}"],
-              "path": ["auth", "profile"]
+              "path": ["profile"]
             }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('GET /profile status is 200', function () { pm.response.to.have.status(200); });",
+                  "const data = pm.response.json();",
+                  "pm.test('Response has id or user object', function () { pm.expect(data.id || data.user).to.exist; });"
+                ]
+              }
+            }
+          ]
           }
+        }
+        ,
+        {
+          "name": "Update Profile - self",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"{{test_new_full_name}}\",\n  \"email\": \"{{test_user_email}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/profile_update",
+              "host": ["{{baseURL}}"],
+              "path": ["profile_update"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('PUT /profile_update status is 200', function () { pm.response.to.have.status(200); });",
+                  "const res = pm.response.json();",
+                  "const name = res.user ? res.user.full_name : res.full_name || res.fullName || null;",
+                  "pm.test('Full name updated', function () { pm.expect(name).to.eql(pm.environment.get('test_new_full_name')); });"
+                ]
+              }
+            }
+          ]
         }
       ]
     },

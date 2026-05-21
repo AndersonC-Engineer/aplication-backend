@@ -3,7 +3,8 @@
 const express = require('express');
 const { register, login, forgotPassword, getProfile } = require('../controllers/authController');
 const validateWithZod = require('../middleware/zodValidation');
-const { registerSchema, loginSchema, forgotPasswordSchema } = require('../utils/validationSchemas');
+const { registerSchema } = require('../utils/userSchema');
+const { loginSchema, forgotPasswordSchema } = require('../utils/validationSchemas');
 
 const router = express.Router();
 

@@ -1,16 +1,31 @@
 // src/middleware/zodValidation.js
 // Middleware para validación con Zod
+const { ZodError } = require('zod');
+
 const validateWithZod = (schema) => {
   return (req, res, next) => {
     try {
-      schema.parse(req.body);
-      next();
+      const result = schema.safeParse(req.body);
+
+      if (!result.success) {
+        const errors = result.error.errors.map((err) => ({
+          field: err.path.length ? err.path.join('.') : 'body',
+          message: err.message,
+        }));
+
+        return res.status(400).json({ errors });
+      }
+
+      req.body = result.data;
+      return next();
     } catch (error) {
-      const errors = error.errors.map(err => ({
-        field: err.path.join('.'),
-        message: err.message,
-      }));
-      return res.status(400).json({ errors });
+      console.error('Zod validation unexpected error:', error);
+
+      const safeError = error instanceof ZodError
+        ? { field: 'body', message: 'Datos inválidos' }
+        : { field: 'body', message: 'Error de validación' };
+
+      return res.status(400).json({ errors: [safeError] });
     }
   };
 };

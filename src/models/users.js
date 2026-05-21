@@ -3,6 +3,36 @@
 const pool = require('../config/database');
 
 const UsersModel = {
+  _columnsCache: null,
+
+  _loadColumns: async () => {
+    if (UsersModel._columnsCache) return UsersModel._columnsCache;
+    const { rows } = await pool.query(
+      `SELECT column_name FROM information_schema.columns WHERE table_name = 'users'`
+    );
+    UsersModel._columnsCache = rows.map((row) => row.column_name);
+    return UsersModel._columnsCache;
+  },
+
+  ensureResetPasswordColumn: async () => {
+    const columns = await UsersModel._loadColumns();
+    if (!columns.includes('reset_password_at')) {
+      await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_password_at timestamptz');
+      UsersModel._columnsCache = null;
+      await UsersModel._loadColumns();
+    }
+  },
+  allowedUpdateColumns: [
+    'username',
+    'password_hash',
+    'full_name',
+    'email',
+    'role_id',
+    'status',
+    'last_login',
+    'login_attempts',
+    'reset_password_at',
+  ],
   findAll: async () => {
     const { rows } = await pool.query(
       'SELECT u.*, r.role_name FROM users u LEFT JOIN roles r ON u.role_id = r.id ORDER BY u.id'
@@ -46,9 +76,12 @@ const UsersModel = {
   update: async (id, fields) => {
     const keys = Object.keys(fields);
     if (!keys.length) return null;
-    const values = Object.values(fields);
-    const assignments = keys.map((key, index) => `${key} = $${index + 1}`).join(', ');
-    const query = `UPDATE users SET ${assignments}, updated_at = now() WHERE id = $${keys.length + 1} RETURNING *`;
+    const columns = await UsersModel._loadColumns();
+    const validKeys = keys.filter((key) => columns.includes(key));
+    if (!validKeys.length) return null;
+    const values = validKeys.map((key) => fields[key]);
+    const assignments = validKeys.map((key, index) => `${key} = $${index + 1}`).join(', ');
+    const query = `UPDATE users SET ${assignments}, updated_at = now() WHERE id = $${validKeys.length + 1} RETURNING *`;
     const { rows } = await pool.query(query, [...values, id]);
     return rows[0];
   },

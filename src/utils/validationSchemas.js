@@ -8,25 +8,6 @@ const loginSchema = z.object({
   password: z.string().min(1, 'La contraseña es obligatoria'),
 });
 
-// Esquema para registro de usuario
-const registerSchema = z.object({
-  username: z.string().min(3, 'El nombre de usuario debe tener al menos 3 caracteres'),
-  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
-  full_name: z.string().min(1, 'El nombre completo es obligatorio'),
-  email: z.string().email('El email debe ser válido'),
-  role_id: z.number().int().positive('El role_id debe ser un número entero positivo'),
-  status: z.enum(['active', 'inactive']).optional().default('active'),
-});
-
-// Esquema para actualizar usuario
-const updateUserSchema = z.object({
-  username: z.string().min(3).optional(),
-  full_name: z.string().min(1).optional(),
-  email: z.string().email().optional(),
-  role_id: z.number().int().positive().optional(),
-  status: z.enum(['active', 'inactive']).optional(),
-});
-
 // Esquema para crear cancha
 const createCourtSchema = z.object({
   court_name: z.string().min(1, 'El nombre de la cancha es obligatorio'),
@@ -89,13 +70,11 @@ const updateCustomerSchema = z.object({
 
 // Esquema para recuperar contraseña
 const forgotPasswordSchema = z.object({
-  email: z.string().email('El email debe ser válido'),
+  email: z.string().trim().email('El email debe ser válido').transform((value) => value.toLowerCase()),
 });
 
 module.exports = {
   loginSchema,
-  registerSchema,
-  updateUserSchema,
   createCourtSchema,
   updateCourtSchema,
   createBookingSchema,

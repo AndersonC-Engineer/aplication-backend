@@ -5,7 +5,7 @@ const { param } = require('express-validator');
 const { authenticateToken } = require('../middleware/auth');
 const { validateRequest } = require('../utils/handleValidation');
 const validateWithZod = require('../middleware/zodValidation');
-const { registerSchema, updateUserSchema } = require('../utils/validationSchemas');
+const { registerSchema, updateUserSchema } = require('../utils/userSchema');
 const {
   getUsers,
   getUser,

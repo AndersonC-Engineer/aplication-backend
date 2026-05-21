@@ -3,6 +3,8 @@
 const { validationResult } = require('express-validator');
 const UsersModel = require('../models/users');
 const authService = require('../services/authService');
+const emailService = require('../services/emailService');
+const { generateTemporaryPassword } = require('../utils/passwordUtils');
 
 const sanitizeUserResponse = (user) => {
   if (!user) return null;
@@ -90,19 +92,35 @@ const forgotPassword = async (req, res, next) => {
     const user = await UsersModel.findByEmail(email);
 
     if (!user) {
-      // Por seguridad, no revelar si el email existe o no
-      return res.json({ message: 'Si el email está registrado, recibirás instrucciones para restablecer tu contraseña' });
+      return res.status(404).json({
+        success: true,
+        message: 'Si el correo existe, recibirás instrucciones para recuperar tu contraseña',
+      });
     }
 
-    // Aquí simularíamos el envío de email con token de reset
-    // Por ahora, solo retornamos un mensaje de éxito
-    // En producción, generar token, guardar en DB, enviar email
+    const temporaryPassword = generateTemporaryPassword();
+    const password_hash = await authService.hashPassword(temporaryPassword);
 
-    res.json({
-      message: 'Si el email está registrado, recibirás instrucciones para restablecer tu contraseña',
-      // Para testing: incluir token simulado
-      resetToken: `reset_${user.id}_${Date.now()}`, // Token temporal para pruebas
-      note: 'Este es un token de prueba. En producción, se enviaría por email.'
+    await UsersModel.ensureResetPasswordColumn();
+
+    const updatedUser = await UsersModel.update(user.id, {
+      password_hash,
+      reset_password_at: new Date(),
+    });
+
+    try {
+      await emailService.sendPasswordResetEmail({
+        to: user.email,
+        fullName: user.full_name,
+        temporaryPassword,
+      });
+    } catch (emailError) {
+      console.error('Error enviando correo de recuperación:', emailError);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Si el correo existe, recibirás instrucciones para recuperar tu contraseña',
     });
   } catch (err) {
     next(err);
