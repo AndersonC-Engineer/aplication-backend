@@ -6,9 +6,11 @@ const cache = (ttlSeconds = 300) => {
 
     getCache(key).then(cached => {
       if (cached) {
+        console.log(`⚡ REDIS CACHE HIT  → ${req.originalUrl} (${ttlSeconds}s TTL)`);
         return res.json(cached);
       }
 
+      console.log(`❌ REDIS CACHE MISS → ${req.originalUrl} (guardando por ${ttlSeconds}s)`);
       const originalJson = res.json.bind(res);
       res.json = (body) => {
         setCache(key, body, ttlSeconds);
@@ -26,7 +28,10 @@ const clearCacheFor = (...prefixes) => {
       originalJson(body);
       if (res.statusCode < 400) {
         const { invalidatePrefix } = require('../config/redis');
-        prefixes.forEach(p => invalidatePrefix(p));
+        prefixes.forEach(p => {
+          console.log(`🗑️ REDIS CACHE CLEAR → ${p}*`);
+          invalidatePrefix(p);
+        });
       }
     };
     next();
