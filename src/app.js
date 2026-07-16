@@ -56,6 +56,18 @@ app.use(express.urlencoded({ extended: true }));
 // Servir la carpeta de subidas estáticamente
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
+// Wrapper para envolver todas las respuestas JSON en { success, data }
+app.use((req, res, next) => {
+  const originalJson = res.json.bind(res);
+  res.json = function (body) {
+    if (body && typeof body === 'object' && !body.success && !body.errors && !body.error) {
+      return originalJson({ success: true, data: body });
+    }
+    return originalJson(body);
+  };
+  next();
+});
+
 // Ruta de salud
 app.get('/api/health', (req, res) => {
   res.json({
