@@ -1,34 +1,13 @@
-// src/routes/productRoutes.js
-// Rutas protegidas para administrar productos.
 const express = require('express');
-const { body, param } = require('express-validator');
-const { authenticateToken } = require('../middleware/auth');
-const { validateRequest } = require('../utils/handleValidation');
-const {
-  getProducts,
-  getProduct,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-} = require('../controllers/productsController');
-
 const router = express.Router();
-router.use(authenticateToken);
+const { protect, authorize } = require('../middleware/authMiddleware');
+const { cache, clearCacheFor } = require('../middleware/cacheMiddleware');
+const productController = require('../controllers/productController');
 
-router.get('/', getProducts);
-router.get('/:id', [param('id').isInt()], validateRequest, getProduct);
-router.post(
-  '/',
-  [
-    body('product_name').isString().notEmpty(),
-    body('current_stock').optional().isInt({ min: 0 }),
-    body('sale_price').optional().isFloat({ min: 0 }),
-    body('purcharse_price').optional().isFloat({ min: 0 }),
-  ],
-  validateRequest,
-  createProduct
-);
-router.put('/:id', [param('id').isInt()], validateRequest, updateProduct);
-router.delete('/:id', [param('id').isInt()], validateRequest, deleteProduct);
+router.get('/', protect, cache(300), productController.getAllProducts);
+router.get('/:id', protect, cache(300), productController.getProductById);
+router.post('/', protect, authorize(1, 3), clearCacheFor('cache:/api/products'), productController.createProduct);
+router.put('/:id', protect, authorize(1, 3), clearCacheFor('cache:/api/products'), productController.updateProduct);
+router.patch('/:id/stock', protect, authorize(1, 3), clearCacheFor('cache:/api/products'), productController.updateStock);
 
 module.exports = router;

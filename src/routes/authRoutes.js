@@ -1,19 +1,24 @@
 // src/routes/authRoutes.js
-// Rutas abiertas para registro y login.
 const express = require('express');
-const { register, login, forgotPassword, getProfile } = require('../controllers/authController');
-const validateWithZod = require('../middleware/zodValidation');
-const { registerSchema } = require('../utils/userSchema');
-const { loginSchema, forgotPasswordSchema } = require('../utils/validationSchemas');
-
 const router = express.Router();
+const { protect } = require('../middleware/authMiddleware');
+const { loginLimiter } = require('../middleware/rateLimiter');
+const { 
+  login, register, getMe, recoverPassword, resetPassword,
+  clientLogin, clientRegister, clientRecoverPassword, clientResetPassword, clientGoogleLogin
+} = require('../controllers/authController');
 
-router.post('/register', validateWithZod(registerSchema), register);
+router.post('/register', register);
+router.post('/login', loginLimiter, login);
+router.get('/me', protect, getMe);
+router.post('/recover-password', recoverPassword);
+router.post('/reset-password', resetPassword);
 
-router.post('/login', validateWithZod(loginSchema), login);
-
-router.post('/forgot-password', validateWithZod(forgotPasswordSchema), forgotPassword);
-
-router.get('/profile', require('../middleware/auth').authenticateToken, getProfile);
+// Client (Website) Routes
+router.post('/client/register', clientRegister);
+router.post('/client/login', loginLimiter, clientLogin);
+router.post('/client/recover-password', clientRecoverPassword);
+router.post('/client/reset-password', clientResetPassword);
+router.post('/client/google', loginLimiter, clientGoogleLogin);
 
 module.exports = router;

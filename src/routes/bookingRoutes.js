@@ -1,28 +1,14 @@
-// src/routes/bookingRoutes.js
-// Rutas protegidas para administrar reservas.
 const express = require('express');
-const { param } = require('express-validator');
-const { authenticateToken } = require('../middleware/auth');
-const { validateRequest } = require('../utils/handleValidation');
-const validateWithZod = require('../middleware/zodValidation');
-const { createBookingSchema, updateBookingSchema } = require('../utils/validationSchemas');
-const {
-  getBookings,
-  getBooking,
-  getBookingsByDate,
-  createBooking,
-  updateBooking,
-  deleteBooking,
-} = require('../controllers/bookingsController');
-
 const router = express.Router();
-router.use(authenticateToken);
+const { protect, authorize } = require('../middleware/authMiddleware');
+const bookingController = require('../controllers/bookingController');
 
-router.get('/', getBookings);
-router.get('/by-date/:date', [param('date').isISO8601()], validateRequest, getBookingsByDate);
-router.get('/:id', [param('id').isInt()], validateRequest, getBooking);
-router.post('/', validateWithZod(createBookingSchema), createBooking);
-router.put('/:id', [param('id').isInt()], validateRequest, validateWithZod(updateBookingSchema), updateBooking);
-router.delete('/:id', [param('id').isInt()], validateRequest, deleteBooking);
+router.get('/', protect, bookingController.getAllBookings);
+router.get('/date/:date', bookingController.getBookingsByDate);
+router.get('/check-availability', bookingController.checkAvailability);
+router.get('/customer/:customerId', protect, bookingController.getCustomerBookings);
+router.post('/', bookingController.createBooking);
+router.put('/:id', protect, authorize(1), bookingController.updateBooking);
+router.put('/:id/status', protect, authorize(1), bookingController.updateBookingStatus);
 
 module.exports = router;
